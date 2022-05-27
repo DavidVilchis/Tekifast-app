@@ -1,4 +1,4 @@
-import { Text, NativeBaseProvider, Box, Heading,  Center, extendTheme, Fab, Icon} from 'native-base';
+import { Text, NativeBaseProvider, Box, Heading,  Center, extendTheme, Fab, Icon, VStack} from 'native-base';
 import React from "react";
 import ClientProfile from './ClientProfile';
 import ClientSearch from './ClientSearch';
@@ -8,74 +8,20 @@ import { createMaterialBottomTabNavigator } from '@react-navigation/material-bot
 
 const Tab = createMaterialBottomTabNavigator();
 
-const Home = () => {
+const Home = ({navigation}) => {
   return (
     <>
       <Center mt={"50px"}>
         <Heading mt="10px" color={"primary.500"}>W<Heading mt="10px" >hat do you need?</Heading></Heading>
-
-        <Text>{"\n"}</Text>
-
-        <Box height="100" w="400" shadow="2" rounded="lg" _dark={{
-          bg: "coolGray.200:alpha.20"
-        }} _light={{
-          bg: "coolGray.200:alpha.20"
-        }}>
-          <Center>
-            <Text>{"\n"}</Text>
-            <Fab renderInPortal={false} shadow={2} placement="top" size="lg" icon={<Icon color="white" as={MaterialCommunityIcons} name="food-fork-drink" size="6" />} label="Food" />
-          </Center>
-        </Box>
-      </Center>
-
-
-
-      <Center>
-        <Box height="100" w="400" shadow="2" rounded="lg" _dark={{
-          bg: "coolGray.200:alpha.20"
-        }} _light={{
-          bg: "coolGray.200:alpha.20"
-        }}>
-          <Center>
-            <Text>{"\n"}</Text>
-            <Fab renderInPortal={false} shadow={2} placement="top" size="lg" icon={<Icon color="white" as={MaterialIcons} name="photo-camera" size="6" />} label="Photographer" />
-          </Center>
-        </Box>
-      </Center>
-
-
-
-      <Center>
-        <Box height="100" w="400" shadow="2" rounded="lg" _dark={{
-          bg: "coolGray.200:alpha.20"
-        }} _light={{
-          bg: "coolGray.200:alpha.20"
-        }}>
-          <Center>
-            <Text>{"\n"}</Text>
-            <Fab renderInPortal={false} shadow={2} placement="top" size="lg" icon={<Icon color="white" as={MaterialIcons} name="computer" size="6" />} label="Programer" />
-          </Center>
-        </Box>
-      </Center>
-
-
-
-      <Center>
-        <Box height="100" w="400" shadow="2" rounded="lg" _dark={{
-          bg: "coolGray.200:alpha.20"
-        }} _light={{
-          bg: "coolGray.200:alpha.20"
-        }}>
-          <Center>
-            <Text>{"\n"}</Text>
-            <Fab renderInPortal={false} shadow={2} placement="top" size="lg" icon={<Icon color="white" as={MaterialIcons} name="web" size="6" />} label="Web designer" />
-          </Center>
-        </Box>
-      </Center>
+        <VStack mt={"40px"}>
+          <Fab onPress={() => {navigation.navigate('ClientJobsDisplay', {job: 'Food'})}} mt={"25px"} renderInPortal={false} shadow={2} placement="top" size="lg" icon={<Icon color="white" as={MaterialCommunityIcons} name="food-fork-drink" size="6" />} label="Food" />
+          <Fab onPress={() => {navigation.navigate('ClientJobsDisplay', {job: 'Photographer'})}} mt={"25px"} renderInPortal={false} shadow={2} placement="top" size="lg" icon={<Icon color="white" as={MaterialIcons} name="photo-camera" size="6" />} label="Photographer" />
+          <Fab onPress={() => {navigation.navigate('ClientJobsDisplay', {job: 'Programmer'})}} mt={"25px"} renderInPortal={false} shadow={2} placement="top" size="lg" icon={<Icon color="white" as={MaterialIcons} name="computer" size="6" />} label="Programmer" />
+          <Fab onPress={() => {navigation.navigate('ClientJobsDisplay', {job: 'Web Designer'})}} mt={"25px"} renderInPortal={false} shadow={2} placement="top" size="lg" icon={<Icon color="white" as={MaterialIcons} name="web" size="6" />} label="Web designer" />
+        </VStack>
+        </Center>    
     </>
-
   )
-
 };
 
 

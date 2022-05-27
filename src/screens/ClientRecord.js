@@ -4,7 +4,7 @@ import { NativeBaseProvider, Heading, extendTheme, Box, Pressable, VStack, HStac
 const Request = (props) => {
     return (
         <Pressable onPress={() => props.navigation.navigate('DescriprionJobsClient')} mt="15px">
-            <Box maxWidth="300" borderWidth="1" borderColor="coolGray.300" bg="coolGray.100" p="5" rounded="8">
+            <Box maxWidth="500" borderWidth="1" borderColor="coolGray.300" bg="coolGray.100" p="5" rounded="8">
                 <HStack space={"3"} alignItems="center">
                     <Avatar bg="green.500" alignSelf="center" size="sm" source={{
                         uri: props.image
@@ -62,7 +62,7 @@ const ClientlHistory = ({ navigation }) => {
         <NativeBaseProvider theme={theme}>
             <Box alignItems="center" mt="30px">
                 <Heading mt="10px" color={"primary.500"}>H<Heading mt="10px" >istory</Heading></Heading>
-                <ScrollView maxW="300" h="400px" _contentContainerStyle={{
+                <ScrollView maxW="100%" h="600px" _contentContainerStyle={{
                     px: "20px",
                     mb: "4",
                     minW: "72"

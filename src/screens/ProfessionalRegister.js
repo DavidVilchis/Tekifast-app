@@ -128,12 +128,12 @@ const Form = (props) => {
                             </FormControl>
 
                             <FormControl>
-                                <FormControl.Label>Addres</FormControl.Label>
+                                <FormControl.Label>Address</FormControl.Label>
                                 <Input onChangeText={(value) => { handleChangeText('address', value) }} placeholder="St. Example" borderColor={"black"} />
                             </FormControl>
 
                             <Button mt="2" bg="primary.400" onPress={() => { handleNext() }}>
-                                Sign up
+                                Next
                             </Button>
                         </VStack>
                     </ScrollView>

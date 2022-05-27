@@ -13,6 +13,8 @@ const UserSelectScreen = ({ navigation }) => {
                         querySnapshot.forEach((doc) => {
                             if (doc.data().type === 'client') {
                                 navigation.navigate("ClientMenu");
+                            }else{
+                                navigation.navigate("ProfessionalMenu");
                             }
                         });
                     })

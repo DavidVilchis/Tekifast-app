@@ -1,6 +1,7 @@
-import { Fab, Icon, Text, NativeBaseProvider, Box, Heading, HStack, VStack, FormControl, Input, Button, Center, Spacer, extendTheme, Badge, Avatar, Flex, Pressable } from 'native-base';
-import React from 'react';
+import { Modal, Icon, Text, NativeBaseProvider, Box, Heading, HStack, VStack, FormControl, Input, Button, Center, Spacer, extendTheme, Badge, Avatar, Flex, Pressable } from 'native-base';
+import React, {useState, useEffect} from 'react';
 import { Fontisto, Ionicons, AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
+import * as firebasSDK from '../../Firebase';
 
 
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
@@ -8,6 +9,60 @@ import { createMaterialBottomTabNavigator } from '@react-navigation/material-bot
 const Tab = createMaterialBottomTabNavigator();
 
 const ProfessionalProfile = ({ navigation }) => {
+
+    const handleSignOut = () => {
+        firebasSDK.auth.signOut().then(() => {
+            navigation.navigate("UserSelect")
+        })
+            .catch(error => console.log(error))
+    }
+    const handleChangeText = (name, value) => {
+        setUserDataEdit({ ...userDataEdit, [name]: value });
+    }
+    const handleUpdate = async () =>{
+        const dbRef = firebasSDK.db.collection("users").doc(userData.id);
+        await dbRef.set({
+            name: userDataEdit.name,
+            address: userDataEdit.address,
+            phone: userDataEdit.phone,
+            email: userDataEdit.email,
+            type: "professional"
+        })
+        firebasSDK.db.collection("users").where("email", "==", firebasSDK.auth.currentUser?.email).get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    setUserData({ ['id']: doc.id, ['name']: doc.data().name, ['address']: doc.data().address, ['email']: doc.data().email, ['phone']: doc.data().phone });
+                });
+                setShowModal(false);
+            })
+            .catch((error) => {
+                console.log("Error getting documents: ", error);
+            })
+    }
+    const [userData, setUserData] = useState({
+        id: '',
+        name: '',
+        address: '',
+        email: '',
+        phone: ''
+    })
+    const [userDataEdit, setUserDataEdit] = useState({});
+
+    const [name, setName] = useState("");
+    const [showModal, setShowModal] = useState(false);
+
+    useEffect(() => {
+        firebasSDK.db.collection("users").where("email", "==", firebasSDK.auth.currentUser?.email).get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    setUserData({ ['id']: doc.id, ['name']: doc.data().name, ['address']: doc.data().address, ['email']: doc.data().email, ['phone']: doc.data().phone });
+                });
+            })
+            .catch((error) => {
+                console.log("Error getting documents: ", error);
+            })
+    }, [])
+
     const theme = extendTheme({
         colors: {
             primary: {
@@ -26,6 +81,42 @@ const ProfessionalProfile = ({ navigation }) => {
     })
     return (
         <NativeBaseProvider theme={theme}>
+            <Center>
+                <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
+                    <Modal.Content maxWidth="400px">
+                        <Modal.CloseButton />
+                        <Modal.Header>Profile Edit</Modal.Header>
+                        <Modal.Body>
+                            <FormControl>
+                                <FormControl.Label>Name</FormControl.Label>
+                                <Input value={userDataEdit.name} onChangeText={(value) => handleChangeText("name", value)}/>
+                            </FormControl>
+                            <FormControl mt="3">
+                                <FormControl.Label>Address</FormControl.Label>
+                                <Input value={userDataEdit.address} onChangeText={(value) => handleChangeText("address", value)}/>
+                            </FormControl>
+                            <FormControl mt="3">
+                                <FormControl.Label>Phone</FormControl.Label>
+                                <Input value={userDataEdit.phone} onChangeText={(value) => handleChangeText("phone", value)}/>
+                            </FormControl>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button.Group space={2}>
+                                <Button variant="ghost" colorScheme="blueGray" onPress={() => {
+                                    setShowModal(false);
+                                }}>
+                                    Cancel
+                                </Button>
+                                <Button onPress={() => {
+                                    handleUpdate()
+                                }}>
+                                    Save
+                                </Button>
+                            </Button.Group>
+                        </Modal.Footer>
+                    </Modal.Content>
+                </Modal>
+            </Center>
             <Box mt={"50px"} alignItems={"center"}>
                 <HStack>
                     <Avatar bg="purple.600" alignSelf="center" size="2xl" source={{
@@ -33,29 +124,38 @@ const ProfessionalProfile = ({ navigation }) => {
                     }}>
                         RB
                     </Avatar>
-                    <Box position="relative" mt={"65%"} ml={"-10px"}>
-                        <Pressable>
+                    <Box position="relative" mt={"30%"} ml={"-10px"}>
+                        <Pressable onPress={() => {
+                            setUserDataEdit(userData);
+                            setShowModal(true);
+                            }}>
                             <Icon as={MaterialCommunityIcons} name="circle-edit-outline" size={27} color="black" />
                         </Pressable>
                     </Box>
                 </HStack>
-                <Heading mt="15px" textAlign={"center"}>Jorge David Vilchis Manzano</Heading>
+                <Heading mt="15px" textAlign={"center"}>{userData.name}</Heading>
             </Box>
             <Box mt="10px" ml="10px">
                 <HStack space={2} mt={"2px"}>
                     <MaterialCommunityIcons name="email" size={24} color="black" />
                     <Text color="black" fontSize="md">
-                        jdv.manzano@gmail.com
+                        {firebasSDK.auth.currentUser?.email}
                     </Text>
                 </HStack>
                 <HStack space={2} mt={"2px"}>
-                    <MaterialCommunityIcons name="office-building" size={24} color="black" />
+                    <MaterialCommunityIcons name="home" size={24} color="black" />
                     <Text color="black" fontSize="md">
-                        P.T.B en Informática
+                        {userData.address}
+                    </Text>
+                </HStack>
+                <HStack space={2} mt={"2px"}>
+                    <MaterialCommunityIcons name="cellphone" size={24} color="black" />
+                    <Text color="black" fontSize="md">
+                        {userData.phone}
                     </Text>
                 </HStack>
                 <Box alignItems="center" mt="15px">
-                    <Button onPress={() => navigation.navigate("UserSelect")} colorScheme={"error"} width={"50%"} variant="subtle" leftIcon={<Icon as={MaterialCommunityIcons} name="logout" size="sm" />}>
+                    <Button onPress={() => handleSignOut()} colorScheme={"error"} width={"50%"} variant="subtle" leftIcon={<Icon as={MaterialCommunityIcons} name="logout" size="sm" />}>
                         Logout
                     </Button>
                 </Box>

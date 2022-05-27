@@ -61,7 +61,7 @@ const ProfessionalHistory = ({ navigation }) => {
         <NativeBaseProvider theme={theme}>
             <Box alignItems="center" mt="30px">
                 <Heading mt="10px" color={"primary.500"}>H<Heading mt="10px" >istory</Heading></Heading>
-                <ScrollView mt="30px" maxW="300" h="600px" _contentContainerStyle={{
+                <ScrollView mt="30px" maxW="100%" h="600px" _contentContainerStyle={{
                     px: "20px",
                     mb: "4",
                     minW: "72"

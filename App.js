@@ -14,6 +14,7 @@ import ProfessionalRegister from './src/screens/ProfessionalRegister';
 import ProfessionalRegisterCategory from './src/screens/ProfessionalRegisterCategory';
 import ProfessionalRegisterFilter from './src/screens/ProfessionalRegisterFilter';
 import ProfessionalRegisterCompany from './src/screens/ProfessionalRegisterCompany';
+import ClientJobsDisplay from './src/screens/ClientJobsDisplay';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,6 +35,7 @@ function App() {
           <Stack.Screen name="ProfessionalRegisterCategory" component={ProfessionalRegisterCategory} options={{headerShown: false}} />
           <Stack.Screen name="ProfessionalRegisterFilter" component={ProfessionalRegisterFilter} options={{headerShown: false}} />
           <Stack.Screen name="ProfessionalRegisterCompany" component={ProfessionalRegisterCompany} options={{headerShown: false}} />
+          <Stack.Screen name='ClientJobsDisplay' component={ClientJobsDisplay} options={{ headerShown: false }} />
         </Stack.Navigator>
     </NavigationContainer>
   );

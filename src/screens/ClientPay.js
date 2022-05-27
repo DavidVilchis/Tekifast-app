@@ -106,7 +106,6 @@ const ClientPay = ({ navigation, route }) => {
             }
         }
     })
-    console.log(userData)
     return (
         <NativeBaseProvider theme={theme}>
             <Box position="relative" bg="primary.50">

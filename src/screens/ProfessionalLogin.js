@@ -26,7 +26,7 @@ const Form = (props) => {
             firebasSDK.auth.signInWithEmailAndPassword(dataLogin.email, dataLogin.password).then(userCredentials => {
                 const user = userCredentials.user;
                 console.log("Logged in with:", user.email);
-                navigation.navigate("ProfessionalMenu");
+                props.navigation.navigate("ProfessionalMenu");
             })
                 .catch(error => {
                     setInformationToast({ ["title"]: "Sign in", ["text"]: error.toString(), ["status"]: "error" });

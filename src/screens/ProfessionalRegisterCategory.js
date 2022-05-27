@@ -1,8 +1,21 @@
 import { Pressable, Icon, Text, NativeBaseProvider, Box, Heading, HStack, VStack, FormControl, Input, Button, Center, Link, extendTheme, Fab } from 'native-base';
-import React from 'react';
+import React, {useState} from 'react';
 import { Fontisto, Ionicons, AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 
-const ProfessionalRegisterCategory = ({ navigation }) => {
+const ProfessionalRegisterCategory = ({ navigation, route }) => {
+
+    const handleNext = (category) =>{
+        navigation.navigate("ProfessionalRegisterFilter", { name: userData.name, email: userData.email, password: userData.password, phone: userData.phone, address: userData.address, category: category})
+    }
+
+    const [userData, setUserData] = useState({
+        name: route.params.name,
+        email: route.params.email,
+        password: route.params.password,
+        phone: route.params.phone,
+        address: route.params.address
+    });
+    console.log(userData);
     const theme = extendTheme({
         colors: {
             primary: {
@@ -32,7 +45,7 @@ const ProfessionalRegisterCategory = ({ navigation }) => {
                 <Box alignItems={"center"} mt={"40px"} bg="primary.50">
                     <Heading textAlign={"center"}>Choose the category of services to perform</Heading>
                     <VStack>
-                        <Pressable mt={"30px"} onPress={() => {navigation.navigate("ProfessionalRegisterFilter")}}>
+                        <Pressable mt={"30px"} onPress={() => {handleNext("Online");}}>
                             <Box alignItems={"center"} bgColor={"primary.600"} maxWidth="300" rounded="8">
                                 <HStack space={"2"} m={"10px"}>
                                     <Icon as={MaterialCommunityIcons} name={"wifi-strength-4"} color={"white"} size={"md"} />
@@ -40,7 +53,7 @@ const ProfessionalRegisterCategory = ({ navigation }) => {
                                 </HStack>
                             </Box>
                         </Pressable>
-                        <Pressable mt={"30px"} onPress={() => {navigation.navigate("ProfessionalRegisterFilter")}}>
+                        <Pressable mt={"30px"} onPress={() => {handleNext("FaceToFace");}}>
                             <Box alignItems={"center"} bgColor={"primary.600"} maxWidth="300" rounded="8">
                                 <HStack space={"2"} m={"10px"}>
                                     <Icon as={MaterialCommunityIcons} name={"toolbox"} size={"md"} color={"white"}/>

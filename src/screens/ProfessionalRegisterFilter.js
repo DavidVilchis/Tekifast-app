@@ -1,8 +1,22 @@
 import { Checkbox, Pressable, Icon, Text, NativeBaseProvider, Box, Heading, HStack, VStack, FormControl, Input, Button, Center, Link, extendTheme, Fab } from 'native-base';
-import React from 'react';
-import { Fontisto, Ionicons, AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
+import React, { useState } from 'react';
+import { Fontisto, Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 
-const ProfessionalRegisterFilter = ({ navigation }) => {
+const ProfessionalRegisterFilter = ({ navigation, route }) => {
+
+    const handleNext = (filter) =>{
+        navigation.navigate('ProfessionalRegisterCompany', { name: userData.name, email: userData.email, password: userData.password, phone: userData.phone, address: userData.address, category: userData.category, filter: filter})
+    }
+
+    const [userData, setUserData] = useState({
+        name: route.params.name,
+        email: route.params.email,
+        password: route.params.password,
+        phone: route.params.phone,
+        address: route.params.address,
+        category: route.params.category
+    });
+    console.log(userData);
     const theme = extendTheme({
         colors: {
             primary: {
@@ -31,16 +45,12 @@ const ProfessionalRegisterFilter = ({ navigation }) => {
                 </Box>
                 <Box alignItems={"center"} mt={"40px"} bg="primary.50">
                     <Heading textAlign={"center"}>Choose your filter</Heading>
-                    <Checkbox.Group accessibilityLabel="choose numbers" mt={"20px"}>
-                        <Checkbox value="one" my={2}>Home</Checkbox>
-                        <Checkbox value="two" my={2}>Software Development</Checkbox>
-                        <Checkbox value="three" my={2}>Clothes</Checkbox>
-                    </Checkbox.Group>
-                </Box>
-                <Box alignItems={"center"} mt={"20px"}>
-                    <Button mt="2" width={"80%"} bg="primary.400" onPress={() => navigation.navigate('ProfessionalRegisterCompany')}>
-                        Next
-                    </Button>
+                    <VStack>
+                        <Fab onPress={() => {handleNext("Food")}} renderInPortal={false} shadow={2} placement="top" size="lg" mt={"20px"} icon={<Icon color="white" as={MaterialCommunityIcons} name="food-fork-drink" size="6" />} label="Food" />
+                        <Fab onPress={() => {handleNext("Photographer")}} renderInPortal={false} shadow={2} placement="top" size="lg" mt={"20px"} icon={<Icon color="white" as={MaterialIcons} name="photo-camera" size="6" />} label="Photographer" />
+                        <Fab onPress={() => {handleNext("Programmer")}} renderInPortal={false} shadow={2} placement="top" size="lg" mt={"20px"} icon={<Icon color="white" as={MaterialIcons} name="computer" size="6" />} label="Programmer" />
+                        <Fab onPress={() => {handleNext("WebDesigner")}} renderInPortal={false} shadow={2} placement="top" size="lg" mt={"20px"} icon={<Icon color="white" as={MaterialIcons} name="web" size="6" />} label="Web designer" />
+                    </VStack>
                 </Box>
             </Box>
             <Fab mt={"20px"} onPress={() => navigation.goBack()} renderInPortal={false} shadow={2} size="4" placement="top-left" icon={<Icon color="white" as={Ionicons} name="chevron-back" size="4" />} />

@@ -1,8 +1,29 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { NativeBaseProvider, View, Center, Heading, Button, Image, VStack, extendTheme, Stagger, useDisclose, IconButton, Icon, Box, Menu } from 'native-base';
 import { Fontisto } from "@expo/vector-icons";
+import * as firebasSDK from '../../Firebase';
 
 const UserSelectScreen = ({ navigation }) => {
+
+    useEffect(() => {
+        const unsuscribe = firebasSDK.auth.onAuthStateChanged(user => {
+            if (user) {
+                firebasSDK.db.collection("users").where("email", "==", user.email).get()
+                    .then((querySnapshot) => {
+                        querySnapshot.forEach((doc) => {
+                            if (doc.data().type === 'client') {
+                                navigation.navigate("ClientMenu");
+                            }
+                        });
+                    })
+                    .catch((error) => {
+                        console.log("Error getting documents: ", error);
+                    })
+            }
+        })
+        return unsuscribe;
+    }, [])
+
     const [isEng, setEng] = useState(true);
     const theme = extendTheme({
         colors: {
@@ -23,13 +44,13 @@ const UserSelectScreen = ({ navigation }) => {
     return (
         <NativeBaseProvider theme={theme}>
             <Box bg="primary.50">
-                <Button mt={"30px"} ml={"2"} width={"25%"} variant="ghost" leftIcon={<Icon as={Fontisto} name="world-o" size="sm"/>} onPress={()=>setEng(!isEng)}>
+                <Button mt={"30px"} ml={"2"} width={"25%"} variant="ghost" leftIcon={<Icon as={Fontisto} name="world-o" size="sm" />} onPress={() => setEng(!isEng)}>
                     {isEng ? "ENG" : "ES"}
                 </Button>
             </Box>
             <Center bg="primary.50" flex={1} px="3">
                 <View>
-                    <Image mt="-55px" mb="35px" source={require("./img/TEKIFAST-Transparent.png")} style={{ width: "100%", height: 50 }} />
+                    <Image mt="-55px" mb="35px" source={require("./img/TEKIFAST-Transparent.png")} style={{ width: 300, height: 50 }} alt={"TekifastLogo"} />
                     <Heading color={"primary.700"} size="2xl" >{isEng ? "Welcome!" : "¡Bienvenido!"}</Heading>
                     <Heading color={"primary.800"} size="md" textAlign="center">{isEng ? "How do you want to log in?" : "¿Cómo quieres iniciar sesión?"}</Heading>
                     <VStack space={2} pt={5} alignItems="center">

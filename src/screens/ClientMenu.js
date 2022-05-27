@@ -11,7 +11,7 @@ const Tab = createMaterialBottomTabNavigator();
 const Home = () => {
   return (
     <>
-      <Center>
+      <Center mt={"50px"}>
         <Heading mt="10px" color={"primary.500"}>W<Heading mt="10px" >hat do you need?</Heading></Heading>
 
         <Text>{"\n"}</Text>

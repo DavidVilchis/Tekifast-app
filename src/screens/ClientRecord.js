@@ -17,20 +17,19 @@ const Request = (props) => {
                         {props.stateName}
                     </Badge>
                     <Spacer />
-                    <Text fontSize={10} color="coolGray.800">
+                    <Text color="coolGray.800">
                         Date: {props.date}
                     </Text>
                 </HStack>
-                <Text color="coolGray.800" mt="3" fontWeight="medium" fontSize="md">
+                <Text color="coolGray.800" mt="3" fontWeight="medium" >
                     {props.name}
                 </Text>
-                <Text mt="2" fontSize="sm" color="coolGray.700">
+                <Text mt="2" color="coolGray.700">
                     {props.description}
                 </Text>
                 <Flex>
                 <Link _text={{
                         color: "darkBlue.600",
-                        fontSize: "medium",
                     }} onPress={() => props.navigation.navigate('DescriptionJobsClient')}>
                         Read more
                     </Link>

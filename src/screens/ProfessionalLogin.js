@@ -156,6 +156,7 @@ const ProfessionalLogin = ({ navigation }) => {
                 </Box>
             </Box>
             <Form navigation={navigation} />
+            
             <Fab mt={"20px"} onPress={() => navigation.goBack()} renderInPortal={false} shadow={2} size="4" placement="top-left" icon={<Icon color="white" as={Ionicons} name="chevron-back" size="4" />} />
         </NativeBaseProvider>
     )

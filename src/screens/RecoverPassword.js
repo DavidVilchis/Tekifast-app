@@ -1,29 +1,48 @@
-import {  Icon, Text, NativeBaseProvider, Box, Heading, VStack, FormControl, Input, Button, Center,Link, extendTheme, Fab, Pressable } from 'native-base';
-import React from 'react';
+import { Icon, Text, NativeBaseProvider, Box, Heading, VStack, FormControl, Input, Button, Center, Link, extendTheme, Fab, Pressable, useTheme } from 'native-base';
+import React, { useState } from 'react';
 import { Fontisto, Ionicons, AntDesign } from "@expo/vector-icons";
+import * as firebaseSDK from '../../Firebase'
 
 const Form = (props) => {
-    return <Center w="100%" h="100%" bg="primary.50">
-        <Box safeArea p="2" py="8" w="100%" bg="primary.50">
-            <Heading textAlign="center" size="lg" fontWeight="600" color="coolGray.800" _dark={{
-                color: "warmGray.50"
-            }}>
-                Recover your password
-            </Heading>
-            <VStack space={3} mt="5" bg="primary.50">
-                <FormControl>
-                    <FormControl.Label>Enter your email</FormControl.Label>
-                    <Input placeholder="example@email.com" borderColor={"black"}/>
-                </FormControl>
-                <Button mt="2" bg="primary.400" onPress={() => props.navigation.navigate('ProfessionalMenu')}>
-                  Recover password
-                </Button>
-            </VStack>
-         </Box>
-    </Center>;
-
+    const [loading, setLoading] = useState(false)
+    const [email, setEmail] = useState("")
+    const handleRecoverPassword = async () => {
+        setLoading(true)
+        await firebaseSDK.auth.sendPasswordResetEmail(email).then(() => {
+            setLoading(false)
+            props.navigation.goBack();
+        }).catch(error => {
+            console.log(error);
+        })
+    }
+    return (
+        <Center w="100%" h="100%" bg="primary.50">
+            <Box safeArea p="2" py="8" w="100%" bg="primary.50" mt={"-300px"}>
+                <Heading textAlign="center" size="lg" fontWeight="600" color="coolGray.800" _dark={{
+                    color: "warmGray.50"
+                }}>
+                    Recover your password
+                </Heading>
+                <VStack space={3} mt="5" bg="primary.50">
+                    <FormControl>
+                        <FormControl.Label>Enter your email</FormControl.Label>
+                        <Input placeholder="example@email.com" borderColor={"black"} onChangeText={(value) => setEmail(value)}/>
+                    </FormControl>
+                    <Button _loading={{
+                        bg: "primary.300",
+                        _text: {
+                            color: "coolGray.700"
+                        }
+                    }}
+                        isLoading={loading} isLoadingText={"Sending email"} mt="2" bg="primary.500" onPress={() => handleRecoverPassword()}>
+                        Recover password
+                    </Button>
+                </VStack>
+            </Box>
+        </Center>
+    )
 };
-const RecoverPassword = ({navigation}) => {
+const RecoverPassword = ({ navigation }) => {
     const theme = extendTheme({
         colors: {
             primary: {
@@ -49,8 +68,8 @@ const RecoverPassword = ({navigation}) => {
                     </Button>
                 </Box>
             </Box>
-            <Form navigation = {navigation}/>
-            <Fab mt={"20px"} onPress={()=>navigation.goBack()} renderInPortal={false} shadow={2} size="4" placement="top-left" icon={<Icon color="white" as={Ionicons} name="chevron-back" size="4" />} />
+            <Form navigation={navigation} />
+            <Fab mt={"20px"} onPress={() => navigation.goBack()} renderInPortal={false} shadow={2} size="4" placement="top-left" icon={<Icon color="white" as={Ionicons} name="chevron-back" size="4" />} />
         </NativeBaseProvider>
     )
 }

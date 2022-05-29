@@ -1,38 +1,45 @@
-import { Text, NativeBaseProvider, Box, Heading, HStack, Spacer, extendTheme, Badge, Avatar, Flex, Pressable } from 'native-base';
-import React from 'react';
+import { ScrollView, Spinner, Text, NativeBaseProvider, Box, Heading, HStack, Spacer, extendTheme, Badge, Avatar, Flex, Pressable, Center } from 'native-base';
+import React, { useEffect, useState } from 'react';
 import ProfessionalProfile from './ProfessionalProfile';
 import ProfessionalHistory from './ProfessionalHistory';
 import ProfessionalMyBusiness from './ProfessionalMyBusiness';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import * as firebaseSDK from '../../Firebase';
 
 const Tab = createMaterialBottomTabNavigator();
 
 const Request = (props) => {
+    const handleNotification = (notification) => {
+        if (notification) {
+            return (
+                <Badge colorScheme="primary.700" _text={{
+                    color: "white"
+                }} variant="solid" rounded="4">
+                    New!
+                </Badge>
+            )
+        }
+    }
     return (
-        <Pressable onPress={() => props.navigation.navigate('ProfessionalJobDescription')} mt="15px">
-            <Box maxWidth="300" borderWidth="1" borderColor="coolGray.300" bg="coolGray.100" p="5" rounded="8">
+        <Pressable onPress={() => props.navigation.navigate('ProfessionalJobDescription',{ id: props.id})} mt="15px">
+            <Box maxWidth="500" borderWidth="1" borderColor="coolGray.300" bg="coolGray.100" p="5" rounded="8">
                 <HStack space={"3"} alignItems="center">
-                    <Avatar bg="green.500" alignSelf="center" size="sm" source={{
-                        uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80"
-                    }}>
-                        KA
-                    </Avatar>
-                    <Badge colorScheme="primary.700" _text={{
+                    {
+                        handleNotification(props.notifcation)
+                    }
+                    <Badge colorScheme={props.state} _text={{
                         color: "white"
                     }} variant="solid" rounded="4">
-                        New!
+                        {props.stateName}
                     </Badge>
                     <Spacer />
                     <Text fontSize={10} color="coolGray.800">
-                        Date: May/02/2022
+                        Date: {props.date}
                     </Text>
                 </HStack>
-                <Text color="coolGray.800" mt="3" fontWeight="medium" fontSize="md">
-                    Karla
-                </Text>
                 <Text mt="2" fontSize="sm" color="coolGray.700">
-                    No muestra nada la pantalla de mi computadora cuando la prendo
+                    {props.short_description}
                 </Text>
                 <Flex>
                     <Text mt="2" fontSize={12} fontWeight="medium" color="darkBlue.600">
@@ -45,11 +52,77 @@ const Request = (props) => {
 }
 
 const Home = ({ navigation }) => {
+    const registro = [];
+    const [tabla, setTabla] = useState([]);
+    const [loading, setLoading] = useState(true)
+    const getDataAll = async () => {
+        await firebaseSDK.db.collection("requests").where("email_company", "==", firebaseSDK.auth.currentUser?.email).where("state_name", "==", "Pendient").get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    const { email_client, notifcation, state_name, name_company, date, short_description, complete_description } = doc.data();
+                    registro.push({
+                        id: doc.id,
+                        state_name,
+                        name_company,
+                        date,
+                        short_description,
+                        complete_description,
+                        notifcation,
+                        email_client
+                    });
+                });
+                setTabla(registro);
+            })
+            .catch((error) => {
+                console.log("Error getting documents: ", error);
+            })
+        console.log(tabla)
+        setLoading(false)
+    }
+    useEffect(() => {
+        getDataAll();
+    }, [])
+    const handleColorState = (state) => {
+        if (state === 'Pendient') {
+            return "muted";
+        } else if (state === 'Completed') {
+            return "success";
+        } else if (state === 'In progress') {
+            return "warning";
+        } else if (state === 'Canceled') {
+            return "danger";
+        }
+    }
+    if (loading) {
+        return (
+            <>
+                <Box alignItems="center" mt="30px">
+                    <Heading mt="10px" color={"primary.500"}>N<Heading mt="10px" >ews requests</Heading></Heading>
+                </Box>
+                <HStack space={2} mt={"100px"} justifyContent="center">
+                    <Spinner accessibilityLabel="Loading posts" />
+                    <Heading color="primary.500" fontSize="md">
+                        Loading
+                    </Heading>
+                </HStack>
+            </>
+        )
+    }
     return (
         <>
             <Box alignItems="center" mt="30px">
                 <Heading mt="10px" color={"primary.500"}>N<Heading mt="10px" >ews requests</Heading></Heading>
-                <Request navigation = {navigation} />
+                <ScrollView maxW="100%" h="600px" _contentContainerStyle={{
+                    px: "20px",
+                    mb: "4",
+                    minW: "72"
+                }}>
+                    {
+                        tabla.map(dataItem => (
+                            <Request notifcation={dataItem.notifcation} id={dataItem.id} navigation={navigation} key={dataItem.id} state={handleColorState(dataItem.state_name)} name={dataItem.name_company} stateName={dataItem.state_name} date={dataItem.date} short_description={dataItem.short_description} complete_description={dataItem.complete_description} />
+                        ))
+                    }
+                </ScrollView>
             </Box>
         </>
     )

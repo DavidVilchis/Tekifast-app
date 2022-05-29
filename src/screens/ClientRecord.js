@@ -126,9 +126,6 @@ const ClientlHistory = ({ navigation }) => {
                         ))
                     }
                 </ScrollView>
-                <ScrollView>
-
-                </ScrollView>
             </Box>
         </NativeBaseProvider>
     )

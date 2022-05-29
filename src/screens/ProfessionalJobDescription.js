@@ -1,9 +1,39 @@
-import React from 'react';
-import { Alert, Collapse, Button, extendTheme, NativeBaseProvider, Heading, Box, Avatar, HStack, VStack, Text, Fab, Icon, IconButton, CloseIcon } from 'native-base';
+import React, { useEffect, useState } from 'react';
+import { Spinner, Alert, Collapse, Button, extendTheme, NativeBaseProvider, Heading, Box, Avatar, HStack, VStack, Text, Fab, Icon, IconButton, CloseIcon } from 'native-base';
 import { Ionicons } from "@expo/vector-icons";
+import * as firebasSDK from '../../Firebase';
 
-const ProfessionalJobDescription = ({ navigation }) => {
-    const [show, setShow] = React.useState(false);
+const ProfessionalJobDescription = ({ navigation, route }) => {
+    const registro = [];
+    const [tabla, setTabla] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [name, setName] = useState("")
+    const getDataAll = async () => {
+        const dbRef = firebasSDK.db.collection("requests").doc(route.params.id)
+        const doc = await dbRef.get();
+        const { email_client, notifcation, state_name, name_company, date, short_description, complete_description } = doc.data();
+        registro.push({
+            id: doc.id,
+            state_name,
+            name_company,
+            date,
+            short_description,
+            complete_description,
+            notifcation,
+        });
+        firebasSDK.db.collection("users").where("email", "==", email_client).get()
+        .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                setName(doc.data().name)
+            });
+        })
+        .catch((error) => {
+            console.log("Error getting documents: ", error);
+        })
+        setTabla(registro);
+        setLoading(false)
+    }
+    const [show, setShow] = useState(false);
     const theme = extendTheme({
         colors: {
             primary: {
@@ -20,6 +50,19 @@ const ProfessionalJobDescription = ({ navigation }) => {
             }
         }
     })
+    if (loading) {
+        getDataAll();
+        return (
+            <NativeBaseProvider theme={theme}>
+                <HStack space={2} mt={"100px"} justifyContent="center">
+                    <Spinner accessibilityLabel="Loading posts" />
+                    <Heading color="primary.500" fontSize="md">
+                        Loading
+                    </Heading>
+                </HStack>
+            </NativeBaseProvider>
+        )
+    }
     return (
         <NativeBaseProvider theme={theme}>
             <Fab mt={"20px"} onPress={() => navigation.goBack()} renderInPortal={false} shadow={2} size="4" placement="top-left" icon={<Icon color="white" as={Ionicons} name="chevron-back" size="4" />} />
@@ -32,7 +75,7 @@ const ProfessionalJobDescription = ({ navigation }) => {
                                 <Text fontSize="md" fontWeight="medium" _dark={{
                                     color: "coolGray.800"
                                 }}>
-                                   Status Request
+                                    Status Request
                                 </Text>
                             </HStack>
                             <IconButton variant="unstyled" _focus={{
@@ -49,33 +92,35 @@ const ProfessionalJobDescription = ({ navigation }) => {
                     </VStack>
                 </Alert>
             </Collapse>
-            <Box mt={!show ? '90px' : '10px'} ml={'20px'}>
-                <HStack space={"2"}>
-                    <Avatar bg="green.500" alignSelf="center" size="lg" source={{
-                        uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80"
-                    }}>
-                        KA
-                    </Avatar>
-                    <VStack>
-                        <Heading color={"primary.500"}>Karla <Heading>Juarez</Heading></Heading>
-                        <Heading size={'sm'}>Date: May/02/2022</Heading>
-                    </VStack>
-                </HStack>
-            </Box>
-            <Box m={'20px'}>
-                <Heading size={'md'}>Short Description</Heading>
-                <Text>No muestra nada la pantalla de mi computadora cuando la prendo</Text>
-                <Heading size={'md'} mt={"5px"}>Complete Description</Heading>
-                <Text>Cuando enciende lo que es mi computadora no puedo ver nada de lo que estoy viendo, ya cambie los cables y aun así no ve lo que sale de la computadora</Text>
-                <Heading size={'md'} mt={"5px"}>Photo</Heading>
-                <Text>Nothing</Text>
-            </Box>
-            <Box mt={'20px'} alignItems={'center'}>
-                <HStack space={"2"}>
-                    <Button variant={"outline"} colorScheme={"danger"}>Decline</Button>
-                    <Button colorScheme={"success"} onPress={() => setShow(true)}>Accept</Button>
-                </HStack>
-            </Box>
+            {
+                tabla.map(dataItem => (
+                    <>
+                        <Box key={dataItem.id}>
+                            <Box mt={!show ? '90px' : '10px'} ml={'20px'}>
+                                <HStack space={"2"}>
+                                    <VStack>
+                                        <Heading color={"primary.500"}>{name}</Heading>
+                                        <Heading size={'sm'}>Date: {dataItem.date}</Heading>
+                                    </VStack>
+                                </HStack>
+                            </Box>
+                            <Box m={'20px'}>
+                                <Heading size={'md'}>Short Description</Heading>
+                                <Text>{dataItem.short_description}</Text>
+                                <Heading size={'md'} mt={"5px"}>Complete Description</Heading>
+                                <Text>{dataItem.complete_description}</Text>
+                            </Box>
+                            <Box mt={'20px'} alignItems={'center'}>
+                                <HStack space={"2"}>
+                                    <Button variant={"outline"} colorScheme={"danger"}>Decline</Button>
+                                    <Button colorScheme={"success"} onPress={() => setShow(true)}>Accept</Button>
+                                </HStack>
+                            </Box>
+                        </Box>
+                    </>
+                ))
+            }
+
         </NativeBaseProvider>
     )
 }

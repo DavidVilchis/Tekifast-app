@@ -5,6 +5,7 @@ import * as firebasSDK from '../../Firebase';
 
 const Form = (props) => {
 
+    const [loading, setLoading] = useState(false)
     const [show, setShow] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [dataLogin, setDataLogin] = useState({
@@ -21,11 +22,13 @@ const Form = (props) => {
     const handleChangeText = (name, value) => {
         setDataLogin({ ...dataLogin, [name]: value });
     }
-    const handleLogin = () => {
+    const handleLogin = async () => {
         if (dataLogin.email != '' && dataLogin.password != '') {
-            firebasSDK.auth.signInWithEmailAndPassword(dataLogin.email, dataLogin.password).then(userCredentials => {
+            setLoading(true);
+            await firebasSDK.auth.signInWithEmailAndPassword(dataLogin.email, dataLogin.password).then(userCredentials => {
                 const user = userCredentials.user;
                 console.log("Logged in with:", user.email);
+                setLoading(false)
                 props.navigation.navigate("ProfessionalMenu");
             })
                 .catch(error => {
@@ -103,7 +106,12 @@ const Form = (props) => {
                             </Link>
 
                         </FormControl>
-                        <Button mt="2" bg="primary.400" onPress={() => { handleLogin() }}>
+                        <Button _loading={{
+                            bg: "primary.300",
+                            _text: {
+                                color: "coolGray.700"
+                            }
+                        }} isLoading={loading} isLoadingText={"Login"} mt="2" bg="primary.500" onPress={() => { handleLogin() }}>
                             Sign in
                         </Button>
                         <Button mt="1" bg="primary.800" leftIcon={<Icon as={AntDesign} name="google" size="sm" />}>
@@ -156,7 +164,7 @@ const ProfessionalLogin = ({ navigation }) => {
                 </Box>
             </Box>
             <Form navigation={navigation} />
-            
+
             <Fab mt={"20px"} onPress={() => navigation.goBack()} renderInPortal={false} shadow={2} size="4" placement="top-left" icon={<Icon color="white" as={Ionicons} name="chevron-back" size="4" />} />
         </NativeBaseProvider>
     )

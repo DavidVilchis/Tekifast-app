@@ -5,6 +5,7 @@ import * as firebasSDK from '../../Firebase';
 
 const Form = (props) => {
 
+    const [loading, setLoading] = useState(false)
     const [show, setShow] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [dataLogin, setDataLogin] = useState({
@@ -23,9 +24,11 @@ const Form = (props) => {
     }
     const handleLogin = () => {
         if (dataLogin.email != '' && dataLogin.password != '') {
+            setLoading(true);
             firebasSDK.auth.signInWithEmailAndPassword(dataLogin.email, dataLogin.password).then(userCredentials => {
                 const user = userCredentials.user;
                 console.log("Logged in with:", user.email);
+                setLoading(false)
                 props.navigation.navigate('ClientMenu')
             })
                 .catch(error => {
@@ -103,7 +106,12 @@ const Form = (props) => {
                             </Link>
 
                         </FormControl>
-                        <Button mt="2" bg="primary.400" onPress={() => { handleLogin() }}>
+                        <Button _loading={{
+                            bg: "primary.300",
+                            _text: {
+                                color: "coolGray.700"
+                            }
+                        }} isLoading={loading} isLoadingText={"Login"} mt="2" bg="primary.500" onPress={() => { handleLogin() }}>
                             Sign in
                         </Button>
                         <Button mt="1" bg="primary.800" leftIcon={<Icon as={AntDesign} name="google" size="sm" />}>

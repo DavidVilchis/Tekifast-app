@@ -70,6 +70,7 @@ const ClientCompanyDisplay = ({ navigation, route }) => {
                 short_description: requestData.short_description,
                 complete_description: requestData.complete_description,
                 state_name: "Pendient",
+                notifcation: "true",
                 date: fecha.toLocaleDateString()
             })
             setInformationToast({ ["title"]: "New Request", ["text"]: "Your request is saved!", ["status"]: "success" });

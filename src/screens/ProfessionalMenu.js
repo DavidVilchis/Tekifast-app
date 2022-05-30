@@ -1,33 +1,21 @@
-import { ScrollView, Spinner, Text, NativeBaseProvider, Box, Heading, HStack, Spacer, extendTheme, Badge, Avatar, Flex, Pressable, Center } from 'native-base';
+import { Button, Icon, ScrollView, Spinner, Text, NativeBaseProvider, Box, Heading, HStack, Spacer, extendTheme, Badge, Avatar, Flex, Pressable, Center } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import ProfessionalProfile from './ProfessionalProfile';
 import ProfessionalHistory from './ProfessionalHistory';
 import ProfessionalMyBusiness from './ProfessionalMyBusiness';
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import * as firebaseSDK from '../../Firebase';
 
 const Tab = createMaterialBottomTabNavigator();
 
 const Request = (props) => {
-    const handleNotification = (notification) => {
-        if (notification) {
-            return (
-                <Badge colorScheme="primary.700" _text={{
-                    color: "white"
-                }} variant="solid" rounded="4">
-                    New!
-                </Badge>
-            )
-        }
-    }
     return (
-        <Pressable onPress={() => props.navigation.navigate('ProfessionalJobDescription',{ id: props.id})} mt="15px">
+        <Pressable onPress={() => {
+            props.navigation.navigate('ProfessionalJobDescription', { id: props.id });
+        }} mt="15px">
             <Box maxWidth="500" borderWidth="1" borderColor="coolGray.300" bg="coolGray.100" p="5" rounded="8">
                 <HStack space={"3"} alignItems="center">
-                    {
-                        handleNotification(props.notifcation)
-                    }
                     <Badge colorScheme={props.state} _text={{
                         color: "white"
                     }} variant="solid" rounded="4">
@@ -59,7 +47,7 @@ const Home = ({ navigation }) => {
         await firebaseSDK.db.collection("requests").where("email_company", "==", firebaseSDK.auth.currentUser?.email).where("state_name", "==", "Pendient").get()
             .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
-                    const { email_client, notifcation, state_name, name_company, date, short_description, complete_description } = doc.data();
+                    const { email_company, email_client, notifcation, state_name, name_company, date, short_description, complete_description } = doc.data();
                     registro.push({
                         id: doc.id,
                         state_name,
@@ -68,7 +56,8 @@ const Home = ({ navigation }) => {
                         short_description,
                         complete_description,
                         notifcation,
-                        email_client
+                        email_client,
+                        email_company
                     });
                 });
                 setTabla(registro);
@@ -89,7 +78,7 @@ const Home = ({ navigation }) => {
             return "success";
         } else if (state === 'In progress') {
             return "warning";
-        } else if (state === 'Canceled') {
+        } else if (state === 'Cancelled') {
             return "danger";
         }
     }
@@ -112,6 +101,9 @@ const Home = ({ navigation }) => {
         <>
             <Box alignItems="center" mt="30px">
                 <Heading mt="10px" color={"primary.500"}>N<Heading mt="10px" >ews requests</Heading></Heading>
+                <Button leftIcon={<Icon as={Ionicons} name="refresh" size="sm" />} mt={"10px"} w={"50%"} onPress={() => { setLoading(true); getDataAll(); }}>
+                    Refresh
+                </Button>
                 <ScrollView maxW="100%" h="600px" _contentContainerStyle={{
                     px: "20px",
                     mb: "4",
@@ -119,7 +111,20 @@ const Home = ({ navigation }) => {
                 }}>
                     {
                         tabla.map(dataItem => (
-                            <Request notifcation={dataItem.notifcation} id={dataItem.id} navigation={navigation} key={dataItem.id} state={handleColorState(dataItem.state_name)} name={dataItem.name_company} stateName={dataItem.state_name} date={dataItem.date} short_description={dataItem.short_description} complete_description={dataItem.complete_description} />
+                            <Request
+                                notifcation={dataItem.notifcation}
+                                id={dataItem.id}
+                                navigation={navigation}
+                                key={dataItem.id}
+                                state={handleColorState(dataItem.state_name)}
+                                name={dataItem.name_company}
+                                stateName={dataItem.state_name}
+                                date={dataItem.date}
+                                short_description={dataItem.short_description}
+                                complete_description={dataItem.complete_description}
+                                email_client={dataItem.email_client}
+                                email_company={dataItem.email_company} 
+                            />
                         ))
                     }
                 </ScrollView>

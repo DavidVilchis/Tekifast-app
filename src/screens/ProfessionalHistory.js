@@ -1,16 +1,15 @@
-import React from 'react';
-import { NativeBaseProvider, Heading, extendTheme, Box, Pressable, VStack, HStack, Avatar, Badge, Spacer, Center, Text, Flex, ScrollView, useTheme } from 'native-base'
+import React, {useState, useEffect} from 'react';
+import { Icon, Button, Spinner, NativeBaseProvider, Heading, extendTheme, Box, Pressable, VStack, HStack, Avatar, Badge, Spacer, Center, Text, Flex, ScrollView, useTheme } from 'native-base'
+import * as firebaseSDK from '../../Firebase';
+import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 
 const Request = (props) => {
     return (
-        <Pressable onPress={() => console.log("Hola")} mt="15px">
-            <Box maxWidth="400" borderWidth="1" borderColor="coolGray.300" bg="coolGray.100" p="5" rounded="8">
+        <Pressable onPress={() => {
+            props.navigation.navigate('ProfessionalJobDescription', { id: props.id });
+        }} mt="15px">
+            <Box maxWidth="500" borderWidth="1" borderColor="coolGray.300" bg="coolGray.100" p="5" rounded="8">
                 <HStack space={"3"} alignItems="center">
-                    <Avatar bg="green.500" alignSelf="center" size="sm" source={{
-                        uri: props.image
-                    }}>
-                        US
-                    </Avatar>
                     <Badge colorScheme={props.state} _text={{
                         color: "white"
                     }} variant="solid" rounded="4">
@@ -21,11 +20,8 @@ const Request = (props) => {
                         Date: {props.date}
                     </Text>
                 </HStack>
-                <Text color="coolGray.800" mt="3" fontWeight="medium" fontSize="md">
-                    {props.name}
-                </Text>
                 <Text mt="2" fontSize="sm" color="coolGray.700">
-                    {props.description}
+                    {props.short_description}
                 </Text>
                 <Flex>
                     <Text mt="2" fontSize={12} fontWeight="medium" color="darkBlue.600">
@@ -54,24 +50,93 @@ const ProfessionalHistory = ({ navigation }) => {
             }
         }
     })
-    const {
-        colors
-    } = useTheme();
+    const registro = [];
+    const [tabla, setTabla] = useState([]);
+    const [loading, setLoading] = useState(true)
+    const getDataAll = async () => {
+        await firebaseSDK.db.collection("requests").where("email_company", "==", firebaseSDK.auth.currentUser?.email).where("state_name", "in", ["Cancelled", "In progress", "Completed"]).get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    const { email_company, email_client, notifcation, state_name, name_company, date, short_description, complete_description } = doc.data();
+                    registro.push({
+                        id: doc.id,
+                        state_name,
+                        name_company,
+                        date,
+                        short_description,
+                        complete_description,
+                        notifcation,
+                        email_client,
+                        email_company
+                    });
+                });
+                setTabla(registro);
+            })
+            .catch((error) => {
+                console.log("Error getting documents: ", error);
+            })
+        console.log(tabla)
+        setLoading(false)
+    }
+    useEffect(() => {
+        getDataAll();
+    }, [])
+    const handleColorState = (state) => {
+        if (state === 'Pendient') {
+            return "muted";
+        } else if (state === 'Completed') {
+            return "success";
+        } else if (state === 'In progress') {
+            return "warning";
+        } else if (state === 'Cancelled') {
+            return "danger";
+        }
+    }
+    if (loading) {
+        return (
+            <>
+                <Box alignItems="center" mt="30px">
+                    <Heading mt="10px" color={"primary.500"}>H<Heading mt="10px" >istory</Heading></Heading>
+                </Box>
+                <HStack space={2} mt={"100px"} justifyContent="center">
+                    <Spinner accessibilityLabel="Loading posts" />
+                    <Heading color="primary.500" fontSize="md">
+                        Loading
+                    </Heading>
+                </HStack>
+            </>
+        )
+    }
     return (
         <NativeBaseProvider theme={theme}>
             <Box alignItems="center" mt="30px">
-                <Heading mt="10px" color={"primary.500"}>H<Heading mt="10px" >istory</Heading></Heading>
-                <ScrollView mt="30px" maxW="100%" h="600px" _contentContainerStyle={{
+            <Heading mt="10px" color={"primary.500"}>H<Heading mt="10px" >istory</Heading></Heading>
+                <Button leftIcon={<Icon as={Ionicons} name="refresh" size="sm" />} mt={"10px"} w={"50%"} onPress={() => { setLoading(true); getDataAll(); }}>
+                    Refresh
+                </Button>
+                <ScrollView maxW="100%" h="600px" _contentContainerStyle={{
                     px: "20px",
                     mb: "4",
                     minW: "72"
                 }}>
-                    <Request state="success" stateName="Completed" date="May/01/2022" name="Armando" description="Mi computadora esta muy lenta y no abre lo que son los programas" image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDXRgDe0O7ak78g3VNqmPeelIh6E61pkHYWg&usqp=CAU" />
-                    <Request state="warning" stateName="In progress" date="Apr/26/2022" name="Cheems" description="Necesito un formateo completo de mi computadora" image="https://i.pinimg.com/474x/0c/18/d4/0c18d4728146722f70ed128dd2832f9c.jpg" />
-                    <Request state="danger" stateName="Canceled" date="Apr/20/2022" name="Bigotes" description="Necesito la computadora de la NASA" image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgdVuiZpQ6FqipLZPeMcm7SWKaXhDHN5KRdA&usqp=CAU" />
-                </ScrollView>
-                <ScrollView>
-                    
+                    {
+                        tabla.map(dataItem => (
+                            <Request
+                                notifcation={dataItem.notifcation}
+                                id={dataItem.id}
+                                navigation={navigation}
+                                key={dataItem.id}
+                                state={handleColorState(dataItem.state_name)}
+                                name={dataItem.name_company}
+                                stateName={dataItem.state_name}
+                                date={dataItem.date}
+                                short_description={dataItem.short_description}
+                                complete_description={dataItem.complete_description}
+                                email_client={dataItem.email_client}
+                                email_company={dataItem.email_company} 
+                            />
+                        ))
+                    }
                 </ScrollView>
             </Box>
         </NativeBaseProvider>
